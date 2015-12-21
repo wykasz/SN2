@@ -1,4 +1,5 @@
-2015-12-05
+2015-12-05 (utworzenie)
+2015-12-13 (eksperymenty)
 
 Przygotowanie danych
 	Zbiory i Ÿród³a
@@ -34,7 +35,14 @@ Przygotowanie danych
 
 	Eksperytmenty przeprowadza³em w oparciu o uzyskane transformaty.
 
-
+Sieæ:
+	W eksperymentach zastosowa³em prost¹ sieæ dwuwarstwow¹, gdzie rozmiar warstwy pierwszej to 32*32, zaœ druga to jeden neuron.
+	U¿y³em funkcji sigmoidalnej (intuicyjnie uwa¿a³em, ¿e s¹siaduj¹ce piksele powinny móc modyfikowaæ wynik w obie strony).
+	Sieæ by³a uczona z u¿yciem algorytmu propagacji wstecznej.
+	
+	Obszar uznawany by³ za las, gdy odpowiedŸ sieci by³a >= 0.5.
+	W przeciwnym przypadku uznawany byl za o. nzl.
+	
 Eksperytmenty:
 	Metdologia:
 		Zgodnie z planem, przeprowadza³em 2 eksperymenty:
@@ -96,12 +104,15 @@ Wnioski:
 		
 Mo¿liwe eksperymenty, ulepszenia:
 	Proponowany eskperyment 1:
+		Powtórzyæ eksperymenty dla unipolarnej funkcji aktywacji.
+
+	Proponowany eskperyment 2:
 		Wytrenowanie sieci sum¹ obu zbiorów testowych i przetestowanie na trzecim, 
 		niezale¿nym zbiorze, opartym o dane z obu serwisów.
 		
 		Cel: Ograniczenie wp³ywu Ÿród³a danych na wyniki
 		
-	Proponowany eskperyment 2:
+	Proponowany eskperyment 3:
 		Wytrenowanie sieci wybranymi obrazami z zestawów nieskalsyfikowanych.
 		Obrazy powinny byæ pokryte obszarami leœnymi i zawieraæ dodatkowe, naturalne "artefakty", np.:
 			- drogi
