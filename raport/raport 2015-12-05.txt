@@ -1,0 +1,111 @@
+2015-12-05
+
+Przygotowanie danych
+	Zbiory i Ÿród³a
+		Przgotowa³em 2 zbiory danych, podzielone na zestawy "ok", "nok" i "nc"
+		"ok" - zestaw "w ca³oœci" zalesiony
+		"nok" - zestaw zupe³nie niezalesiony
+		"nc" - zestaw niesklasyfikowany
+
+		Zestawy sklasyfikowa³em rêcznie.
+
+		Zestayw s¹ oparte odpowiednio na
+		 - mapach google (maps.goole.com)
+			- zestaw "google_ok", rozmiar 342 
+			- zestaw "google_nok", rozmiar 342 
+		 - mapach rz¹dowyh (www.geoportal.gov.pl)
+			- zestaw "gov_ok", rozmiar 458
+			- zestaw "gov_nok", rozmiar 548
+
+		Zestawy sk³adaj¹ siê z obrazów zawieraj¹cych fotografie satelitarne/lotnicze oraz ich transformat (tylko amplituda, bez przesuniêcia w fazie).
+		Rozdzielczoœæ fotografi to 128/128px, 1.28 m/px
+
+	Obliczanie transformat
+		Fotografie zosta³y skonwertowane do skali szaroœci:
+		# convert.exe "$line"  -colorspace gray "${line}.gray.png"
+
+		Transformaty obliczy³em narzêdziem imagemagick, poleceniem:
+		# convert.exe "$FILE" -fft "$FILE.fft.png"
+		Nastêpnie dopasowa³em kontrast sk³adowej zawierj¹cej aplitudê:
+		# convert "$FILE.fft-0.png" -contrast-stretch 0 -evaluate log 10000 "$FILE.fft-ok.png"
+
+		Ze wzglêdu na oraniczenia czasow i pamiêciowe, uzyskane transformaty przeskalowa³em do rozmiaru 32/32px
+		# convert.exe "$line"  -resize  32 "${line}.scaled.png"
+
+	Eksperytmenty przeprowadza³em w oparciu o uzyskane transformaty.
+
+
+Eksperytmenty:
+	Metdologia:
+		Zgodnie z planem, przeprowadza³em 2 eksperymenty:
+		1. Uczenie sieci zbiorem 1, test na zbiorze 2
+		2. Uczenie sieci zbiorem 2, test na zbiorze 1
+		
+		Bada³em trzy rodzaje skutecznoœci klasyfikacji:
+		a. Skutecznoœæ ogóln¹, wyra¿on¹ jako stosunek 
+			liczby dobrze sklasyfikowanych obrazów do liczby klasyfikowanych obrazów.
+		b. Skutecznoœæ rozpoznawania lasów, wyra¿on¹ jako stosunek 
+			liczby dobrze sklasyfikowanych obrazów lasów do liczby klasyfikowanych obrazów lasów.
+		c. Skutecznoœæ rozpoznawania obszarów nlz., wyra¿on¹ jako stosunek 
+			liczby dobrze sklasyfikowanych obrazów nzl. do liczby klasyfikowanych obrazów nzl.
+			
+		Dla ka¿dego testu przeprowadzi³em 100 prób. 
+		Podane wyniki to wartoœci œrednie.
+
+	Test 1:
+		Zestawy ucz¹cze: google_ok, google_nok
+		Zestawy testowe: gov_ok, gov_nok
+
+		Skutecznoœæ ogólna: 0.88
+		Odchylenie st.:  0.00
+		
+		Skutecznoœæ rozpoznawania lasów: 0.79
+		Odchylenie st.: 0.01
+		
+		Skutecznoœæ rozpoznawania o. nlz.: 0.96
+		Odchylenie st.: 0.00
+
+	Test 2:
+		Zestawy ucz¹cze: gov_ok, gov_nok
+		Zestawy testowe: google_ok, google_nok
+
+		Skutecznoœæ ogólna: 0.61
+		Odchylenie st.: 0.00
+		
+		Skutecznoœæ rozpoznawania lasów: 0.23
+		Odchylenie st.: 0.00
+		
+		Skutecznoœæ rozpoznawania o. nlz.: 0.99
+		Odchylenie st.: 0.00
+
+Wnioski:
+
+	1. Rezulaty
+		W obecnej wersji system potrafi skutcznie odrzuciæ obszary niezalesione.
+		Potrafi równie¿, z niewielk¹ skutecznoœci¹ wykryæ obszary zalesione.
+		Co wa¿ne, system skutecznie odrzuca obszary niezalesione, st¹d wysokie prawdopodobieñstwo, 
+		¿e obszary sklasyfikowane jako zalesione rzeczywiœcie s¹ zalesione. 
+	
+	2. Zidentyfikowane wady przygotowanych zbiorów.
+		Zbiór 'gov' zawiera fotografie lasów znacznie lepszej jakoœci ni¿ zbiór 'google'.
+		Zbiór 'google' zawiera sztucznie wygenerowane artefakty, np. oznacznia dróg, napisy).
+		
+		To wydaje siê t³umaczyæ wy¿sz¹ skutecznoœæ ogóln¹ sieci wytrenowanej zbiorem 'google' nad sieci¹ wytrenowan¹ zbiorem 'gov'.
+		T³umaczy to równie¿ ni¿sz¹ skutecznoœæ rozpoznawania o. nlz. sieci wytrenowanej zbiorem 'google' i niemal 100% skutecznoœæ sieci 'gov'.
+
+		
+Mo¿liwe eksperymenty, ulepszenia:
+	Proponowany eskperyment 1:
+		Wytrenowanie sieci sum¹ obu zbiorów testowych i przetestowanie na trzecim, 
+		niezale¿nym zbiorze, opartym o dane z obu serwisów.
+		
+		Cel: Ograniczenie wp³ywu Ÿród³a danych na wyniki
+		
+	Proponowany eskperyment 2:
+		Wytrenowanie sieci wybranymi obrazami z zestawów nieskalsyfikowanych.
+		Obrazy powinny byæ pokryte obszarami leœnymi i zawieraæ dodatkowe, naturalne "artefakty", np.:
+			- drogi
+			- obszary rolnicze, ³¹ki
+			- fragmenty zabudowañ
+
+		Cel: zbadanie zdlnoœci do klasyfikowania zaszumionych danych
